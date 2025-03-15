@@ -134,9 +134,9 @@
         utterance.lang = 'en-US';
         
         // Debug event listeners for utterance
-        utterance.onstart = () => console.log("Speech synthesis started.");
-        utterance.onend = () => console.log("Speech synthesis finished.");
-        utterance.onerror = (err) => console.error("Speech synthesis error:", err);
+           utterance.onstart = () => console.log("TTS started: " + text);
+    utterance.onend = () => console.log("TTS finished speaking.");
+    utterance.onerror = (err) => console.error("TTS error:", err);
         
         synth.speak(utterance);
         document.getElementById("response").innerText = text;
