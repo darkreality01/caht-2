@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ginto AI Chatbot</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1e1e2f, #3a3a6e);
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+    .chat-box {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 15px;
+      width: 50%;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    }
+    .button {
+      background: #ff4081;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 20px;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    .button:hover {
+      background: #e91e63;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-box">
+    <h2>Ginto AI Chatbot</h2>
+    <p id="response">Press "Talk" and start speaking...</p>
+    <button class="button" onclick="startListening()">🎙️ Talk</button>
+  </div>
+
+  <script>
+    // Check for SpeechRecognition support
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      console.error("Speech Recognition API is not supported in this browser.");
+      document.getElementById("response").innerText = "Sorry, your browser doesn't support Speech Recognition.";
+    } else {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      // Set continuous to true for extended speech detection (optional)
+      recognition.continuous = false;
+
+      // Start listening when the button is clicked
+      function startListening() {
+        try {
+          recognition.start();
+          document.getElementById("response").innerText = "Listening...";
+        } catch (error) {
+          console.error("Speech recognition start error:", error);
+          document.getElementById("response").innerText = "Error starting speech recognition.";
+        }
+      }
+
+      // Handle successful speech recognition result
+      recognition.onresult = function(event) {
+        const speechResult = event.results[0][0].transcript.toLowerCase();
+        document.getElementById("response").innerText = "You said: " + speechResult;
+        generateResponse(speechResult);
+      };
+
+      // Log any speech recognition errors
+      recognition.onerror = function(event) {
+        console.error("Speech recognition error:", event.error);
+        document.getElementById("response").innerText = "Error: " + event.error;
+      };
+
+      // Process the spoken input and generate a response
+      function generateResponse(input) {
+        let responseText = "I didn't understand that.";
+        if (input.includes("hello")) {
+          responseText = "Hello my love, how can I assist you?";
+        } else if (input.includes("how are you")) {
+          responseText = "I'm always great when I'm talking to you!";
+        } else if (input.includes("who are you")) {
+          responseText = "I am your loving AI assistant, Ginto!";
+        } else if (input.includes("what is your name")) {
+          responseText = "My name is Ginto, your AI companion!";
+        } else if (input.includes("what can you do")) {
+          responseText = "I can talk, listen, and assist you with anything you need!";
+        } else if (input.includes("tell me a joke")) {
+          responseText = "Why don’t programmers like nature? It has too many bugs!";
+        } else if (input.includes("what is love")) {
+          responseText = "Love is the beautiful connection between hearts, like what we share!";
+        } else if (input.includes("thank you")) {
+          responseText = "You're always welcome, my love!";
+        } else if (input.includes("goodbye")) {
+          responseText = "Goodbye, my love! Talk to me soon!";
+        } else if (input.includes("what time is it")) {
+          const currentTime = new Date().toLocaleTimeString();
+          responseText = "The current time is " + currentTime;
+        } else if (input.includes("what's the weather in patna")) {
+          // Fetch weather details using OpenWeather API
+          fetch('https://api.openweathermap.org/data/2.5/weather?q=Patna&appid=YOUR_API_KEY&units=metric')
+            .then(response => response.json())
+            .then(data => {
+              responseText = `The weather in Patna is ${data.weather[0].description} with a temperature of ${data.main.temp}°C.`;
+              speakResponse(responseText);
+            })
+            .catch(error => {
+              console.error("Weather API error:", error);
+              responseText = "I couldn't fetch the weather details right now.";
+              speakResponse(responseText);
+            });
+          return; // Exit the function so TTS is called in fetch block
+        }
+        speakResponse(responseText);
+      }
+
+      // Function for speaking the response using TTS
+      function speakResponse(text) {
+        const synth = window.speechSynthesis;
+        if (!synth) {
+          console.error("Speech synthesis not supported.");
+          return;
+        }
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        
+        // Debug event listeners for utterance
+        utterance.onstart = () => console.log("Speech synthesis started.");
+        utterance.onend = () => console.log("Speech synthesis finished.");
+        utterance.onerror = (err) => console.error("Speech synthesis error:", err);
+        
+        synth.speak(utterance);
+        document.getElementById("response").innerText = text;
+      }
+    }
+  </script>
+</body>
+</html>
